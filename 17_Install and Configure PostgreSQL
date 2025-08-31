@@ -1,0 +1,54 @@
+*****************************Day 17: Install and Configure PostgreSQL***************************
+
+The Nautilus application development team has shared that they are planning to deploy one newly developed application on Nautilus infra in Stratos DC. The application uses PostgreSQL database, so as a pre-requisite we need to set up PostgreSQL database server as per requirements shared below:
+
+PostgreSQL database server is already installed on the Nautilus database server.
+
+a. Create a database user kodekloud_gem and set its password to 8FmzjvFU6S.
+
+b. Create a database kodekloud_db9 and grant full permissions to user kodekloud_gem on this database.
+
+Note: Please do not try to restart PostgreSQL server service.
+
+Ans :
+
+thor@jumphost ~$ ssh peter@stdb01
+
+[peter@stdb01 ~]$ sudo su - 
+
+[root@stdb01 ~]# sudo systemctl status postgresql
+vice: Failed to send unit change signal for postgresql.service: Connection reset by peer
+
+[root@stdb01 ~]# systemctl enable postgresql 
+Created symlink /etc/systemd/system/multi-user.target.wants/postgresql.service → /usr/lib/systemd/system/postgresql.service.
+
+[root@stdb01 ~]# systemctl start  postgresql 
+
+[root@stdb01 ~]# systemctl status  postgresql 
+
+
+[root@stdb01 ~]# sudo -i -u postgres
+
+[postgres@stdb01 ~]$ psql
+psql (13.14)
+Type "help" for help.
+
+postgres=# CREATE USER kodekloud_gem WITH PASSWORD '8FmzjvFU6S';
+CREATE ROLE
+postgres=# CREATE DATABASE kodekloud_db9;
+CREATE DATABASE
+postgres=# GRANT ALL PRIVILEGES ON DATABASE kodekloud_db9 to kodekloud_gem
+postgres-# \q
+[postgres@stdb01 ~]$ exit
+logout
+
+
+[root@stdb01 ~]# psql  -U kodekloud_gem -d kodekloud_db9 -h localhost -W
+Password: 
+psql (13.14)
+Type "help" for help.
+
+kodekloud_db9=> 
+
+
+done !!!

@@ -1,0 +1,161 @@
+*******************************Day 9:MariaDB Troubleshooting***************************
+
+There is a critical issue going on with the Nautilus application in Stratos DC. The production support team identified that the application is unable to connect to the database. After digging into the issue, the team found that mariadb service is down on the database server.
+
+Look into the issue and fix the same.
+
+Ans : 
+
+thor@jumphost ~$ ssh peter@172.16.239.10
+The authenticity of host '172.16.239.10 (172.16.239.10)' can't be established.
+ED25519 key fingerprint is SHA256:GGvJ1ZGCy7h1BvUFgupdle50jmxLG7z4zoo3Dq6UwP4.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '172.16.239.10' (ED25519) to the list of known hosts.
+peter@172.16.239.10's password: 
+[peter@stdb01 ~]$ sudo su
+
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+[sudo] password for peter: 
+
+[root@stdb01 peter]# systemctl start mariadb
+Job for mariadb.service failed because the control process exited with error code.
+See "systemctl status mariadb.service" and "journalctl -xeu mariadb.service" for details.
+[root@stdb01 peter]# systemctl status mariadb
+× mariadb.service - MariaDB 10.5 database server
+     Loaded: loaded (/usr/lib/systemd/system/mariadb.service; enabled; preset: disabled)
+     Active: failed (Result: exit-code) since Sat 2025-08-16 06:00:16 UTC; 23s ago
+   Duration: 6.536s
+       Docs: man:mariadbd(8)
+             https://mariadb.com/kb/en/library/systemd/
+    Process: 2230 ExecStartPre=/usr/libexec/mariadb-check-socket (code=exited, status=0/SUCCESS)
+    Process: 2264 ExecStartPre=/usr/libexec/mariadb-prepare-db-dir mariadb.service (code=exited, status=0/SUCCESS)
+    Process: 2359 ExecStart=/usr/libexec/mariadbd --basedir=/usr $MYSQLD_OPTS $_WSREP_NEW_CLUSTER (code=exited, status=1/FAILURE)
+   Main PID: 2359 (code=exited, status=1/FAILURE)
+
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[2359]: Remounted /run/systemd/unit-root/run/credentials.
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[2359]: mariadb.service: Executing: /usr/libexec/mariadbd --basedir=/usr
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Child 2359 belongs to mariadb.service.
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Main process exited, code=exited, status=1/FAILURE
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Failed with result 'exit-code'.
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Service will not restart (restart setting)
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Changed start -> failed
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Job 243 mariadb.service/start finished, result=failed
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[1]: Failed to start MariaDB 10.5 database server.
+Aug 16 06:00:16 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Unit entered failed state.
+[root@stdb01 peter]# cd /var/lib
+[root@stdb01 lib]# ls
+alternatives  games  mysql    rpm        selinux  tpm2-tss
+dnf           misc   private  rpm-state  systemd
+[root@stdb01 lib]# ls /var/lib
+alternatives  games  mysql    rpm        selinux  tpm2-tss
+dnf           misc   private  rpm-state  systemd
+[root@stdb01 lib]# ls -ltr
+total 52
+drwxr-xr-x 2 root  root  4096 Aug  9  2021 rpm-state
+drwxr-xr-x 2 root  root  4096 Aug  9  2021 misc
+drwxr-xr-x 2 root  root  4096 Aug  9  2021 games
+drwxr-xr-x 1 root  root  4096 Dec 13  2023 rpm
+drwxr-xr-x 3 root  root  4096 May 27  2024 selinux
+drwxr-xr-x 1 root  root  4096 Jun  5  2024 tpm2-tss
+drwx------ 2 root  root  4096 Jun  5  2024 private
+drwxr-xr-x 1 root  root  4096 Jun  5  2024 alternatives
+drwxr-xr-x 1 root  root  4096 Jun  5  2024 dnf
+drwxr-xr-x 1 root  root  4096 Aug 16 05:56 systemd
+drwxr-xr-x 1 mysql mysql 4096 Aug 16 06:00 mysql
+[root@stdb01 lib]# journelctl -xeu mariadb.service
+bash: journelctl: command not found
+[root@stdb01 lib]# tail -n 50 /var/log/mariadb/mariadb.log
+2025-08-16  5:56:19 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2025-08-16  5:56:19 0 [Note] InnoDB: Number of pools: 1
+2025-08-16  5:56:19 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-08-16  5:56:19 0 [Note] mariadbd: O_TMPFILE is not supported on /var/tmp (disabling future attempts)
+2025-08-16  5:56:19 0 [Note] InnoDB: Using Linux native AIO
+2025-08-16  5:56:19 0 [Note] InnoDB: Initializing buffer pool, total size = 134217728, chunk size = 134217728
+2025-08-16  5:56:19 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-08-16  5:56:19 0 [Note] InnoDB: 128 rollback segments are active.
+2025-08-16  5:56:19 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+2025-08-16  5:56:19 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+2025-08-16  5:56:19 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+2025-08-16  5:56:19 0 [Note] InnoDB: 10.5.22 started; log sequence number 45079; transaction id 20
+2025-08-16  5:56:19 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-08-16  5:56:19 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-08-16  5:56:19 0 [Note] InnoDB: Buffer pool(s) load completed at 250816  5:56:19
+2025-08-16  5:56:19 0 [Note] Server socket created on IP: '::'.
+2025-08-16  5:56:19 0 [Note] Reading of all Master_info entries succeeded
+2025-08-16  5:56:19 0 [Note] Added new Master_info '' to hash table
+2025-08-16  5:56:19 0 [Note] /usr/libexec/mariadbd: ready for connections.
+Version: '10.5.22-MariaDB'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  MariaDB Server
+2025-08-16  5:56:26 0 [Note] /usr/libexec/mariadbd (initiated by: unknown): Normal shutdown
+2025-08-16  5:56:26 0 [Note] Event Scheduler: Purging the queue. 0 events
+2025-08-16  5:56:26 0 [Note] InnoDB: FTS optimize thread exiting.
+2025-08-16  5:56:26 0 [Note] InnoDB: Starting shutdown...
+2025-08-16  5:56:26 0 [Note] InnoDB: Dumping buffer pool(s) to /var/lib/mysql/ib_buffer_pool
+2025-08-16  5:56:26 0 [Note] InnoDB: Buffer pool(s) dump completed at 250816  5:56:26
+2025-08-16  5:56:26 0 [Note] InnoDB: Removed temporary tablespace data file: "ibtmp1"
+2025-08-16  5:56:26 0 [Note] InnoDB: Shutdown completed; log sequence number 45091; transaction id 21
+2025-08-16  5:56:26 0 [Note] /usr/libexec/mariadbd: Shutdown complete
+
+2025-08-16  6:00:16 0 [Note] Starting MariaDB 10.5.22-MariaDB source revision 7e650253dc488debcb0898ebe6d385bf6dfa3656 as process 2359
+2025-08-16  6:00:16 0 [Note] InnoDB: Uses event mutexes
+2025-08-16  6:00:16 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2025-08-16  6:00:16 0 [Note] InnoDB: Number of pools: 1
+2025-08-16  6:00:16 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-08-16  6:00:16 0 [Note] mariadbd: O_TMPFILE is not supported on /var/tmp (disabling future attempts)
+2025-08-16  6:00:16 0 [Note] InnoDB: Using Linux native AIO
+2025-08-16  6:00:16 0 [Note] InnoDB: Initializing buffer pool, total size = 134217728, chunk size = 134217728
+2025-08-16  6:00:16 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-08-16  6:00:16 0 [Note] InnoDB: 128 rollback segments are active.
+2025-08-16  6:00:16 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+2025-08-16  6:00:16 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+2025-08-16  6:00:16 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+2025-08-16  6:00:16 0 [Note] InnoDB: 10.5.22 started; log sequence number 45091; transaction id 20
+2025-08-16  6:00:16 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-08-16  6:00:16 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-08-16  6:00:16 0 [Note] InnoDB: Buffer pool(s) load completed at 250816  6:00:16
+2025-08-16  6:00:16 0 [Note] Server socket created on IP: '::'.
+2025-08-16  6:00:16 0 [ERROR] mariadbd: Can't create/write to file '/run/mariadb/mariadb.pid' (Errcode: 13 "Permission denied")
+2025-08-16  6:00:16 0 [ERROR] Can't start server: can't create PID file: Permission denied
+[root@stdb01 lib]# ^C
+[root@stdb01 lib]# ls -ld /run/mariadb
+drwxr-xr-x 2 root mysql 40 Aug 16 05:56 /run/mariadb
+[root@stdb01 lib]# chown mysql:mysql /run/mariadb
+[root@stdb01 lib]# chmod 755 /run/mariadb
+[root@stdb01 lib]# systemctl start mariadb
+[root@stdb01 lib]# systemctl status mariabd
+Unit mariabd.service could not be found.
+[root@stdb01 lib]# systemctl status maridb
+Unit maridb.service could not be found.
+[root@stdb01 lib]# systemctl status mariadb
+● mariadb.service - MariaDB 10.5 database server
+     Loaded: loaded (/usr/lib/systemd/system/mariadb.service; enabled; preset: disabled)
+     Active: active (running) since Sat 2025-08-16 06:09:42 UTC; 38s ago
+       Docs: man:mariadbd(8)
+             https://mariadb.com/kb/en/library/systemd/
+    Process: 2503 ExecStartPre=/usr/libexec/mariadb-check-socket (code=exited, status=0/SUCCESS)
+    Process: 2566 ExecStartPre=/usr/libexec/mariadb-prepare-db-dir mariadb.service (code=exited, status=0/SUCCESS)
+    Process: 2707 ExecStartPost=/usr/libexec/mariadb-check-upgrade (code=exited, status=0/SUCCESS)
+   Main PID: 2667 (mariadbd)
+     Status: "Taking your SQL requests now..."
+      Tasks: 15 (limit: 411434)
+     Memory: 73.1M
+     CGroup: /docker/7a222fee73f39df75589c05f9f6e61837e7d286422daee929f35b896dc57f538/system.slice/mariadb.service
+             └─2667 /usr/libexec/mariadbd --basedir=/usr
+
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[2707]: Remounted /run/systemd/unit-root/run/systemd/incoming.
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[2707]: Remounted /run/systemd/unit-root/run/credentials.
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[2707]: mariadb.service: Executing: /usr/libexec/mariadb-check-upgrade
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Child 2707 belongs to mariadb.service.
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Control process exited, code=exited, status=0/SUCCESS (success)
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Got final SIGCHLD for state start-post.
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Changed start-post -> running
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Job 323 mariadb.service/start finished, result=done
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[1]: Started MariaDB 10.5 database server.
+Aug 16 06:09:42 stdb01.stratos.xfusioncorp.com systemd[1]: mariadb.service: Failed to send unit change signal for mariadb.service: Connection reset by peer
+[root@stdb01 lib]# 

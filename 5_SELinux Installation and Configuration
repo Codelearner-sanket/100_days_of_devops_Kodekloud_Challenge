@@ -1,0 +1,36 @@
+*******************************Day 5: SELinux Installation and Configuration***************************
+
+Install the required SELinux packages
+Temporarily disable SELinux via the config file (no reboot)
+Ensure SELinux stays disabled after a scheduled reboot
+Disregard the current command-line status
+
+--------------------------------
+ANS : 
+
+SSH into the app server from the jump host
+
+Checked the OS Version
+confirmed the server’s operating system to determine which package manager to use.
+cat /etc/*release
+
+
+installed the SELinux Package
+yum install -y selinux-policy selinux-policy-targeted
+
+selinux-policy → The base rule set for SELinux
+selinux-policy-targeted → Default policy that targets high-risk services
+
+Permanently Disabled SELinux
+sudo vi /etc/selinux/config
+
+#Once the file was opened, Changed
+SELINUX=enforcing
+
+#to 
+
+SELINUX=disabled
+
+
+Verified the Config Change
+grep SELINUX= /etc/selinux/config

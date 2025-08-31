@@ -1,0 +1,124 @@
+*******************************Day 11: Install and Configure Tomcat Server***************************
+
+The Nautilus application development team recently finished the beta version of one of their Java-based applications, which they are planning to deploy on one of the app servers in Stratos DC. After an internal team meeting, they have decided to use the tomcat application server. Based on the requirements mentioned below complete the task:
+
+a. Install tomcat server on App Server 1.
+
+b. Configure it to run on port 6200.
+
+c. There is a ROOT.war file on Jump host at location /tmp.
+
+
+Deploy it on this tomcat server and make sure the webpage works directly on base URL i.e curl http://stapp01:6200
+
+ANS : 
+
+thor@jumphost ~$ scp /tmp/ROOT.war tony@stapp01:/tmp
+The authenticity of host 'stapp01 (172.16.238.10)' can't be established.
+ED25519 key fingerprint is SHA256:/YbwaTKDB5rPXl/TjH5AjbvvwyN74+/1id/EGX/w0EY.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'stapp01' (ED25519) to the list of known hosts.
+tony@stapp01's password: 
+ROOT.war                                               100% 4529    15.3MB/s   00:00    
+thor@jumphost ~$ ssh tony@stapp01
+tony@stapp01's password: 
+
+[tony@stapp01 ~]$ sudo su -
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+[sudo] password for tony: 
+
+[root@stapp01 ~]# sudo yum install -y tomcat
+
+[root@stapp01 ~]# vi /usr/share/tomcat/conf/server.xml
+
+[root@stapp01 ~]# cat /usr/share/tomcat/conf/server.xml
+// at your server.xml (Tomcat configuration file), you  have to change <Connector>  to port 6200 
+<Connector port="6200" protocol="HTTP/1.1"
+           connectionTimeout="20000"
+           redirectPort="8443"
+           maxParameterCount="1000"
+           />
+
+[root@stapp01 ~]# cat /usr/share/tomcat/conf/server.xml | grep port
+<Server port="8005" shutdown="SHUTDOWN">
+         Define a non-SSL/TLS HTTP/1.1 Connector on port 8080
+    <Connector port="6200" protocol="HTTP/1.1"
+               port="6200" protocol="HTTP/1.1"
+    <!-- Define an SSL/TLS HTTP/1.1 Connector on port 8443
+    <Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+    <!-- Define an SSL/TLS HTTP/1.1 Connector on port 8443 with HTTP/2
+    <Connector port="8443" protocol="org.apache.coyote.http11.Http11AprProtocol"
+    <!-- Define an AJP 1.3 Connector on port 8009 -->
+               port="8009"
+
+[root@stapp01 ~]# cp /tmp/ROOT.war /usr/share/tomcat/webapps/
+
+[root@stapp01 ~]# ls /usr/share/tomcat/webapps/
+ROOT.war
+
+[root@stapp01 ~]# ls -ltr /usr/share/tomcat/webapps/
+total 8
+-rw-r--r-- 1 root root 4529 Aug 16 18:31 ROOT.war
+
+[root@stapp01 ~]# systemctl start tomcat
+
+[root@stapp01 ~]# systemctl status tomcat
+● tomcat.service - Apache Tomcat Web Application Container
+     Loaded: loaded (/usr/lib/systemd/system/tomcat.service; disabled; preset: disabled)
+     Active: active (running) since Sat 2025-08-16 18:32:44 UTC; 6s ago
+   Main PID: 3160 (java)
+      Tasks: 50 (limit: 411434)
+     Memory: 117.5M
+     CGroup: /docker/334d9147e07fbe5a9ffe928c118ad95f504ca12ce033b70758791c9f2f99a966/system.slice/tomcat.service
+             └─3160 /usr/lib/jvm/jre/bin/java -Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar: -Dcatalina.base=/usr/share/tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/cache/tomcat/temp -Djava.util.logging.config.file=/usr/share/tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Dsun.io.useCanonCaches=false org.apache.catalina.startup.Bootstrap start
+
+Aug 16 18:32:45 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:45.143 INFO [main] org.apache.catalina.core.AprLifecycleListener.initializeSSL OpenSSL successfully initialized [OpenSSL 3.2.1 30 Jan 2024]
+Aug 16 18:32:46 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:46.122 INFO [main] org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler ["http-nio-6200"]
+Aug 16 18:32:46 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:46.219 INFO [main] org.apache.catalina.startup.Catalina.load Server initialization in [1510] milliseconds
+Aug 16 18:32:46 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:46.313 INFO [main] org.apache.catalina.core.StandardService.startInternal Starting service [Catalina]
+Aug 16 18:32:46 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:46.313 INFO [main] org.apache.catalina.core.StandardEngine.startInternal Starting Servlet engine: [Apache Tomcat/9.0.87]
+Aug 16 18:32:46 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:46.334 INFO [main] org.apache.catalina.startup.HostConfig.deployWAR Deploying web application archive [/var/lib/tomcat/webapps/ROOT.war]
+Aug 16 18:32:47 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:47.905 INFO [main] org.apache.jasper.servlet.TldScanner.scanJars At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+Aug 16 18:32:48 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:48.016 INFO [main] org.apache.catalina.startup.HostConfig.deployWAR Deployment of web application archive [/var/lib/tomcat/webapps/ROOT.war] has finished in [1,681] ms
+Aug 16 18:32:48 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:48.019 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-6200"]
+Aug 16 18:32:48 stapp01.stratos.xfusioncorp.com server[3160]: 16-Aug-2025 18:32:48.028 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in [1808] milliseconds
+
+[root@stapp01 ~]# curl -i http://stapp01:6200
+HTTP/1.1 200 
+Accept-Ranges: bytes
+ETag: W/"471-1580289830000"
+Last-Modified: Wed, 29 Jan 2020 09:23:50 GMT
+Content-Type: text/html
+Content-Length: 471
+Date: Sat, 16 Aug 2025 18:33:15 GMT
+
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>SampleWebApp</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h2>Welcome to xFusionCorp Industries!</h2>
+        <br>
+    
+    </body>
+</html>
+
+
+
+
+

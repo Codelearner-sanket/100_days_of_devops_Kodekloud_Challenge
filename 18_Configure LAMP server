@@ -1,0 +1,80 @@
+*****************************Day 18: Configure LAMP server***************************
+
+xFusionCorp Industries is planning to host a WordPress website on their infra in Stratos Datacenter. They have already done infrastructure configuration—for example, on the storage server they already have a shared directory /vaw/www/html that is mounted on each app host under /var/www/html directory. Please perform the following steps to accomplish the task:
+
+a. Install httpd, php and its dependencies on all app hosts.
+
+b. Apache should serve on port 6400 within the apps.
+
+c. Install/Configure MariaDB server on DB Server.
+
+d. Create a database named kodekloud_db6 and create a database user named kodekloud_joy identified as password LQfKeWWxWD. Further make sure this newly created user is able to perform all operation on the database you created.
+
+e. Finally you should be able to access the website on LBR link, by clicking on the App button on the top bar. You should see a message like App is able to connect to the database using user kodekloud_joy
+
+Ans : 
+
+
+sudo yum install -y httpd php php-mysqlnd php-fpm
+
+Enable and start Apache:
+
+
+sudo systemctl enable httpd
+
+sudo systemctl start httpd
+
+Step B: Configure Apache to serve on port 6400
+Edit Apache config:
+
+sudo vi /etc/httpd/conf/httpd.conf
+Find the line:
+
+Listen 80
+Change to:
+to 
+Listen 6400
+Also update VirtualHost section if present:
+
+
+sudo systemctl restart httpd
+
+
+sudo ss -tulnp | grep httpd
+Should show Apache listening on 6400.
+
+Step C: Install and configure MariaDB server on DB Server
+On DB Server (stdb01):
+
+
+sudo yum install -y mariadb-server
+
+sudo systemctl enable mariadb
+
+sudo systemctl start mariadb
+
+Step D: Create database & user
+Log into MariaDB:
+
+sudo mysql -u root
+
+Run SQL 
+
+CREATE DATABASE kodekloud_db6;
+
+CREATE USER 'kodekloud_joy'@'%' IDENTIFIED BY 'LQfKeWWxWD';
+
+GRANT ALL PRIVILEGES ON kodekloud_db6.* TO 'kodekloud_joy'@'%';
+
+FLUSH PRIVILEGES;
+
+EXIT;
+
+Step E: Allow remote connections
+Edit MariaDB config (/etc/my.cnf or /etc/my.cnf.d/mariadb-server.cnf):
+
+[mysqld]
+bind-address=0.0.0.0
+
+Restart MariaDB:
+sudo systemctl restart mariadb

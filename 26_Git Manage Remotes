@@ -1,0 +1,52 @@
+*****************************Day 26: Git Manage Remotes***************************
+
+
+The xFusionCorp development team added updates to the project that is maintained under /opt/games.git repo and cloned under /usr/src/kodekloudrepos/games. Recently some changes were made on Git server that is hosted on Storage server in Stratos DC. The DevOps team added some new Git remotes, so we need to update remote on /usr/src/kodekloudrepos/games repository as per details mentioned below:
+
+
+a. In /usr/src/kodekloudrepos/games repo add a new remote dev_games and point it to /opt/xfusioncorp_games.git repository.
+
+
+b. There is a file /tmp/index.html on same server; copy this file to the repo and add/commit to master branch.
+
+
+c. Finally push master branch to this new remote origin.
+
+Ans : 
+you’ll need to SSH into the storage server again to perform the required Git operations, because:
+
+The repo /usr/src/kodekloudrepos/games exists only on the storage server.
+The new remote /opt/xfusioncorp_games.git is also on the storage server.
+
+So first, connect to the storage server:
+
+ssh natasha@ststor01
+sudo su -
+
+Then, once logged in, follow the steps :
+
+Step 1: Go to your repo
+cd /usr/src/kodekloudrepos/games
+You are now inside the cloned Git repository.
+
+
+# Add the new remote
+git remote add dev_games /opt/xfusioncorp_games.git
+dev_games is the name of the new remote.
+/opt/xfusioncorp_games.git is where it points.
+
+
+git remote -v   # to verify
+
+# Ensure on master branch
+git checkout master
+
+# Copy file
+cp /tmp/index.html .
+
+# Commit the file
+git add index.html
+git commit -m "Added index.html file to master branch"
+
+# Push to new remote
+git push dev_games master

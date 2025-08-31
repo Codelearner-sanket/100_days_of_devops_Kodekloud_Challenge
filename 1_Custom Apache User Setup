@@ -1,0 +1,57 @@
+
+
+*******************************Day 1: Linux User Setup with Non-Interactive Shell***************************
+
+In response to heightened security concerns, the xFusionCorp Industries security team has opted for custom Apache users for their web applications. Each user is tailored specifically for an application, enhancing security measures. Your task is to create a custom Apache user according to the outlined specifications:
+
+a. Create a user named rose on App server 3 within the Stratos Datacenter.
+
+b. Assign a unique UID 1941 and designate the home directory as /var/www/rose.
+
+--------------------
+ANS : 
+thor@jumphost ~$ ssh banner@172.16.238.12
+
+banner@172.16.238.12's password: 
+[banner@stapp03 ~]$ sudo su-
+
+[banner@stapp03 ~]$ sudo su -
+Last failed login: Tue Aug  5 18:43:13 UTC 2025 on pts/0
+There was 1 failed login attempt since the last successful login.
+
+[root@stapp03 ~]# id rose
+id: ‘rose’: no such user
+
+[root@stapp03 ~]# useradd -u 1941 rose
+
+[root@stapp03 ~]# cat /etc/passwd | grep rose
+rose:x:1941:1941::/home/rose:/bin/bash
+
+[root@stapp03 ~]# id rose
+uid=1941(rose) gid=1941(rose) groups=1941(rose)
+
+[root@stapp03 ~]# usermod -d /var/www/rose -m rose
+
+[root@stapp03 ~]# cat /etc/passwd | grep rose
+rose:x:1941:1941::/var/www/rose:/bin/bash
+
+
+
+
+
+
+
+To accommodate the backup agent tool's specifications, the system admin team at xFusionCorp Industries requires the creation of a user with a non-interactive shell. Here's your task:
+
+
+
+Create a user named jim with a non-interactive shell on App Server 1.
+
+root@stapp01 ~]# adduser jim -s /sbin/nologin
+[root@stapp01 ~]# id ravi
+id: ‘ravi’: no such user
+[root@stapp01 ~]# id jim
+uid=1002(jim) gid=1002(jim) groups=1002(jim)
+[root@stapp01 ~]# cat /etc/passwd | grep jim
+jim:x:1002:1002::/home/jim:/sbin/nologin
+[root@stapp01 ~]# 

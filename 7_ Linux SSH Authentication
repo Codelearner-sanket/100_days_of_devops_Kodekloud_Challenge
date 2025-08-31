@@ -1,0 +1,31 @@
+
+*******************************Day 7: Linux SSH Authentication***************************
+
+The system admins team of xFusionCorp Industries has set up some scripts on jump host that run on regular intervals and perform operations on all app servers in Stratos Datacenter. To make these scripts work properly we need to make sure the thor user on jump host has password-less SSH access to all app servers through their respective sudo users (i.e tony for app server 1). Based on the requirements, perform the following:
+
+
+Set up a password-less authentication from user thor on jump host to all app servers through their respective sudo users.
+
+ANS : 
+we have to Set up password-less SSH from the thor user on a jump host to three app servers (tony, steve, banner) — securely and professionally.
+
+Generated new SSH key pair
+
+ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+or 
+ssh-keygen 
+
+Copied public key to each target server:
+ssh-copy-id  username@ip 
+
+
+ssh-copy-id tony@stapp01
+ssh-copy-id steve@stapp02
+ssh-copy-id banner@stapp03
+
+
+
+What I Learned:
+-How to securely enable automated communication across multiple environments
+-Why password-less SSH is critical for CI/CD pipelines and DevOps automation
+-Real-world practice with user-specific server authentication

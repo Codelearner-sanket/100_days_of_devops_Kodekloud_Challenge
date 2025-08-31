@@ -1,0 +1,200 @@
+*****************************Day 15: Setup SSL for Nginx***************************
+
+The system admins team of xFusionCorp Industries needs to deploy a new application on App Server 2 in Stratos Datacenter. They have some pre-requites to get ready that server for application deployment. Prepare the server as per requirements shared below:
+
+1. Install and configure nginx on App Server 2.
+
+2. On App Server 2 there is a self signed SSL certificate and key present at location /tmp/nautilus.crt and /tmp/nautilus.key. Move them to some appropriate location and deploy the same in Nginx.
+
+3. Create an index.html file with content Welcome! under Nginx document root.
+
+4. For final testing try to access the App Server 2 link (either hostname or IP) from jump host using curl command. For example curl -Ik https://<app-server-ip>/.
+
+
+Ans: 
+
+thor@jumphost ~$ ssh steve@stapp02
+The authenticity of host 'stapp02 (172.16.238.11)' can't be established.
+ED25519 key fingerprint is SHA256:8ea23mWwgpCvWFgtl//haKX9WCBXGorKL4aBiSGFMBc.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'stapp02' (ED25519) to the list of known hosts.
+steve@stapp02's password: 
+Permission denied, please try again.
+steve@stapp02's password: 
+Last failed login: Sun Aug 24 15:53:48 UTC 2025 from 172.16.238.3 on ssh:notty
+There was 1 failed login attempt since the last successful login.
+
+[steve@stapp02 ~]$ sudo su -
+
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+[sudo] password for steve: 
+[root@stapp02 ~]# sudo yum install epel-release -y
+
+[root@stapp02 ~]# sudo yum install nginx -y
+
+[root@stapp02 ~]# cd /etc/nginx
+
+[root@stapp02 nginx]# ls
+conf.d                fastcgi_params.default  nginx.conf           uwsgi_params.default
+default.d             koi-utf                 nginx.conf.default   win-utf
+fastcgi.conf          koi-win                 scgi_params
+fastcgi.conf.default  mime.types              scgi_params.default
+fastcgi_params        mime.types.default      uwsgi_params
+
+[root@stapp02 nginx]# vi nginx.conf
+
+[root@stapp02 nginx]# cat nginx.conf
+# For more information on configuration, see:
+#   * Official English Documentation: http://nginx.org/en/docs/
+#   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log;
+pid /run/nginx.pid;
+
+# Load dynamic modules. See /usr/share/doc/nginx/README.dynamic.
+include /usr/share/nginx/modules/*.conf;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 4096;
+
+    include             /etc/nginx/mime.types;
+    default_type        application/octet-stream;
+
+    # Load modular configuration files from the /etc/nginx/conf.d directory.
+    # See http://nginx.org/en/docs/ngx_core_module.html#include
+    # for more information.
+    include /etc/nginx/conf.d/*.conf;
+
+    server {
+        listen       80;
+        listen       [::]:80;
+        server_name  172.16.238.11;
+        root         /usr/share/nginx/html;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        error_page 404 /404.html;
+        location = /404.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+        }
+    }
+
+# Settings for a TLS enabled server.
+#
+    server {
+        listen       443 ssl http2;
+        listen       [::]:443 ssl http2;
+        server_name  172.16.238.11;
+        root         /usr/share/nginx/html;
+
+        ssl_certificate "/etc/pki/nginx/server.crt";
+        ssl_certificate_key "/etc/pki/nginx/private/server.key";
+        ssl_session_cache shared:SSL:1m;
+        ssl_session_timeout  10m;
+        ssl_ciphers PROFILE=SYSTEM;
+        ssl_prefer_server_ciphers on;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+    }
+
+}
+
+[root@stapp02 nginx]# sudo nginx -t
+nginx: [emerg] cannot load certificate "/etc/pki/nginx/server.crt": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/pki/nginx/server.crt, r) error:10000080:BIO routines::no such file)
+nginx: configuration file /etc/nginx/nginx.conf test failed
+
+[root@stapp02 nginx]# sudo mkdir /etc/nginx/ssl/
+
+[root@stapp02 nginx]# sudo mv /tmp/nautilus.crt /etc/nginx/ssl/
+
+[root@stapp02 nginx]# sudo mv /tmp/nautilus.key /etc/nginx/ssl/
+
+[root@stapp02 nginx]# sudo chmod 644 /etc/nginx/ssl/nautilus.crt
+
+[root@stapp02 nginx]# sudo chmod 644 /etc/nginx/ssl/nautilus.key
+
+[root@stapp02 nginx]# sudo chmod 600 /etc/nginx/ssl/nautilus.key
+
+[root@stapp02 nginx]# sudo chmod 644 /etc/nginx/ssl/nautilus.crt
+
+[root@stapp02 nginx]# vi nginx.conf
+
+[root@stapp02 nginx]# sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+[root@stapp02 nginx]# vi nginx.conf
+
+[root@stapp02 nginx]# sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+
+[root@stapp02 nginx]# echo "Welcome!" | sudo tee /usr/share/nginx/html/index.html
+Welcome!
+
+[root@stapp02 nginx]# sudo systemctl  enable nginx
+Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → /usr/lib/systemd/system/nginx.service.
+
+[root@stapp02 nginx]# sudo systemctl  start  nginx
+
+[root@stapp02 nginx]# sudo systemctl status  nginx
+
+[root@stapp02 nginx]# curl -Ik https://172.16.238.11
+HTTP/2 200 
+server: nginx/1.20.1
+date: Sun, 24 Aug 2025 16:11:04 GMT
+content-type: text/html
+content-length: 9
+last-modified: Sun, 24 Aug 2025 16:08:59 GMT
+etag: "68ab391b-9"
+accept-ranges: bytes
+
+[root@stapp02 nginx]# curl -Ik https://172.16.238.11/
+HTTP/2 200 
+server: nginx/1.20.1
+date: Sun, 24 Aug 2025 16:11:43 GMT
+content-type: text/html
+content-length: 9
+last-modified: Sun, 24 Aug 2025 16:08:59 GMT
+etag: "68ab391b-9"
+accept-ranges: bytes
+
+
+[root@stapp02 nginx]# 

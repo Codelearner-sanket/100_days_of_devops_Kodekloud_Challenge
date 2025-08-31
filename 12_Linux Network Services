@@ -1,0 +1,60 @@
+*******************************Day 12: Linux Network Services***************************
+
+Our monitoring tool has reported an issue in Stratos Datacenter. One of our app servers has an issue, as its Apache service is not reachable on port 8086 (which is the Apache port). The service itself could be down, the firewall could be at fault, or something else could be causing the issue.
+
+Use tools like telnet, netstat, etc. to find and fix the issue. Also make sure Apache is reachable from the jump host without compromising any security settings.
+
+Once fixed, you can test the same using command curl http://stapp01:8086 command from jump host.
+
+Ans : 
+
+1. Check if Apache is running and listening on port 8086
+sudo systemctl status httpd
+sudo netstat -tulnp | grep 8086
+
+
+👉 Found error:
+(98)Address already in use: AH00072: make_sock: could not bind to address 0.0.0.0:8086
+This means another service is already using port 8086.
+
+2. Identify which service is using port 8086
+sudo netstat -tulnp | grep 8086
+👉 Output shows sendmail is using port 8086.
+
+
+3. Stop and disable the conflicting service
+sudo systemctl stop sendmail
+sudo systemctl disable sendmail
+
+
+4. Restart Apache service
+sudo systemctl restart httpd
+
+Check again:
+sudo netstat -tulnp | grep 8086
+👉 Now Apache (httpd) is bound to port 8086.
+
+
+5. Open firewall for port 8086 (if needed)
+
+Check firewall status:
+sudo firewall-cmd --list-all
+
+
+If port 8086 not allowed:
+
+sudo firewall-cmd --permanent --add-port=8086/tcp
+sudo firewall-cmd --reload
+
+
+If using iptables:
+sudo iptables -I INPUT -p tcp --dport 8086 -j ACCEPT
+sudo service iptables save   # if available
+
+
+Verify:
+sudo iptables -L -n | grep 8086
+
+
+6. Test from Jump Host
+curl http://stapp01:8086

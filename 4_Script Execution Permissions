@@ -1,0 +1,43 @@
+*******************************Day 4: Script Execution Permissions***************************
+
+Grant executable permissions to the /tmp/xfusioncorp.sh script on App Server 1 and ensure all users have the capability to execute it.
+----------------------------
+ANS : 
+
+# check permissions
+ls-l
+---x--x--x 1 root root 40 Aug 10 07:21 /tmp/xfusioncorp.sh
+
+A script needs both read (r) and execute (x) permissions to run successfully. The read permission allows the shell to interpret the script, and the execute permission allows the system to run it.
+
+The permissions need to be set for the owner, the group, and all other users. This is a common requirement for shared scripts or automated processes.
+
+I needed to use a chmod command that would grant both read and execute permissions to all users, and also grant the owner write permission for future modifications.
+
+used the symbolic mode to clearly add both the read (r) and execute (x) permissions for all (a) users.
+
+sudo chmod a+rx /tmp/xfusioncorp.sh
+
+
+
+Create a Cron Job Linux Server
+NB Tech Support
+ Question :  The Nautilus system admins team has prepared scripts to automate several day-to-day tasks. They want them to be deployed on all app servers in Stratos DC on a set schedule. Before that they need to test similar functionality with a sample cron job. Therefore, perform the steps below:
+
+a. Install cronie package on all Nautilus app servers and start crond service.
+
+b. Add a cron */5 * * * * echo hello > /tmp/cron_text for root user.
+
+
+
+
+
+ yum install cronie -y
+ sudo systemctl start crond.service
+ sudo systemctl status crond.service
+
+crontab -e
+
+crontab -l
+
+

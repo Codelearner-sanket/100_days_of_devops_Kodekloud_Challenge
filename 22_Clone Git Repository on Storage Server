@@ -1,0 +1,24 @@
+*****************************Day 22: Clone Git Repository on Storage Server***************************
+DevOps team created a new Git repository last week; however, as of now no team is using it. The Nautilus application development team recently asked for a copy of that repo on Storage server in Stratos DC. Please clone the repo as per details shared below:
+
+1. The repo that needs to be cloned is /opt/media.git
+
+2. Clone this git repository under /usr/src/kodek loudrepos directory. Please do not try to make any changes in the repo.
+
+Solution:
+
+
+First SSH in to the storage server.
+
+Bare git repository(A bare repository contains only the . git/ part, no files you can directly edit.) such as media.git found in the /opt folder.
+
+Task is to clone the media.git to the folder /usr/src/kodekloudrepos folder.
+
+In the kodeklourepos directory , clone the bare repository.
+cd /usr/src/kodekloudrepos
+
+git clone /opt/media.git
+
+Check the .git folder present in the media folder after cloning to the kodekloudrepos folder.
+
+

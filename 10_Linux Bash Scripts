@@ -1,0 +1,79 @@
+*******************************Day 10: Linux Bash Scripts***************************
+The production support team of xFusionCorp Industries is working on developing some bash scripts to automate different day to day tasks. One is to create a bash script for taking websites backup. They have a static website running on App Server 1 in Stratos Datacenter, and they need to create a bash script named news_backup.sh which should accomplish the following tasks. (Also remember to place the script under /scripts directory on App Server 1).
+a. Create a zip archive named xfusioncorp_news.zip of /var/www/html/news directory.
+b. Save the archive in /backup/ on App Server 1. This is a temporary storage, as backups from this location will be clean on weekly basis. Therefore, we also need to save this backup archive on Nautilus Backup Server.
+c. Copy the created archive to Nautilus Backup Server server in /backup/ location.
+d. Please make sure script won't ask for password while copying the archive file. Additionally, the respective server user (for example, tony in case of App Server 1) must be able to run it.
+
+Note:
+The zip package must be installed on given App Server before executing the script. This package is essential for creating the zip archive of the website files. You can install it either manually or through the bash script as needed.
+
+Ans : 
+
+
+1. Login to App Server 1
+ssh tony@stapp01
+sudo su -
+
+2. Create /scripts/news_backup.sh
+mkdir -p /scripts
+vi /scripts/news_backup.sh
+
+Add the following:
+#!/bin/bash
+zip -r /backup/xfusioncorp_news.zip /var/www/html/news
+scp /backup/xfusioncorp_news.zip clint@stbkp01:/backup
+
+3. Make Script Executable
+chmod +x /scripts/news_backup.sh
+
+4. Setup Passwordless SSH (so script won’t ask for password)
+Generate SSH key:
+ssh-keygen -t rsa
+
+[root@stapp03 scripts]# ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): 
+Created directory '/root/.ssh'.
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:1d+CvnE/kGmyT2abeElq8wm+k0fBOBueM/1pWIiXZVU root@stapp03.stratos.xfusioncorp.com
+The key's randomart image is:
++---[RSA 2048]----+
+|                E|
+|           .    .|
+|          . +   .|
+|         . + = + |
+|        S . O @ .|
+|           X % o |
+|           .#+B .|
+|          .B*O+* |
+|          .+X*. o|
++----[SHA256]-----+
+
+Copy key to Backup Server:
+ssh-copy-id clint@stbkp01
+
+Test login:
+
+ssh clint@stbkp01
+
+5. Run Script
+/scripts/news_backup.sh
+
+6. Verify Backups
+On App Server 1:
+ls -l /backup/
+
+
+On Backup Server:
+ssh clint@stbkp01
+ls -l /backup/
+
+
+You should see:
+xfusioncorp_news.zip
+

@@ -1,0 +1,54 @@
+*****************************Day 25: Git Merge Branches***************************
+The Nautilus application development team has been working on a project repository /opt/beta.git. This repo is cloned at /usr/src/kodekloudrepos on storage server in Stratos DC. They recently shared the following requirements with DevOps team:
+
+Create a new branch nautilus in /usr/src/kodekloudrepos/beta repo from master and copy the /tmp/index.html file (present on storage server itself) into the repo. Further, add/commit this file in the new branch and merge back that branch into master branch. Finally, push the changes to the origin for both of the branches.
+
+Solution : 
+
+
+The task was:
+👉 Create a new branch nautilus, add a file, commit, merge it back to master, and push both branches.
+
+Login to Storage Server
+ssh natasha@ststor01
+sudo su -
+
+Step 1: Go to repo and check branch
+cd /usr/src/kodekloudrepos/beta
+git branch
+
+Step 2: Create new branch nautilus
+git checkout -b nautilus
+
+
+Step 3: Copy the file into repo
+cp /tmp/index.html .
+
+
+Step 4: Add and commit the file
+git add index.html
+git commit -m "Added index.html file to nautilus branch"
+
+
+Step 5: Push new branch to origin
+git push origin nautilus
+Sent nautilus branch (with the new file) to the central repo (/opt/beta.git).
+
+
+Step 6: Merge into master
+git checkout master
+git merge nautilus
+
+You went back to master branch and merged nautilus changes into it.
+Now master also has index.html.
+
+
+Step 7: Push master to origin
+git push origin master
+
+Step 8: Confirm branches
+git branch -a
+* master
+  nautilus
+  remotes/origin/master
+  remotes/origin/nautilus

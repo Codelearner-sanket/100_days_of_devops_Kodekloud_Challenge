@@ -1,0 +1,38 @@
+*****************************Day 24: Git Create Branches***************************
+
+Nautilus developers are actively working on one of the project repositories, /usr/src/kodekloudrepos/demo. Recently, they decided to implement some new features in the application, and they want to maintain those new changes in a separate branch. Below are the requirements that have been shared with the DevOps team:
+
+On Storage server in Stratos DC create a new branch xfusioncorp_demo from master branch in /usr/src/kodekloudrepos/demo git repo.
+
+Please do not try to make any changes in the code.
+
+Ans:
+
+thor@jumphost ~$ ssh natasha@ststor01
+
+[natasha@ststor01 demo]$ sudo su -
+
+[root@ststor01 ~]# cd /usr/src/kodekloudrepos/demo
+
+[root@ststor01 demo]# git branch
+* kodekloud_demo
+  master
+
+
+[root@ststor01 demo]# git checkout master
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+
+[root@ststor01 demo]# git branch
+  kodekloud_demo
+* master
+
+[root@ststor01 demo]# git checkout -b xfusioncorp_demo
+Switched to a new branch 'xfusioncorp_demo'
+
+[root@ststor01 demo]# git branch
+  kodekloud_demo
+  master
+* xfusioncorp_demo
+
+[root@ststor01 demo]# 

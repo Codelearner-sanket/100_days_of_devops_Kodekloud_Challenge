@@ -1,0 +1,50 @@
+
+*******************************Day 2: Temporary User Setup with Expiry***************************
+
+As part of the temporary assignment to the Nautilus project, a developer named james requires access for a limited duration. To ensure smooth access management, a temporary user account with an expiry date is needed.  
+
+Create a user named james on App Server 2 in Stratos Datacenter. Set the expiry date to 2024-04-15, ensuring the user is created in lowercase as per standard protocol.
+-------------------
+ANS :  
+
+sudo adduser --expiredate 2023-12-07 stark 
+sudo chage -l stark
+
+
+
+[root@stapp01 ~]# groupadd nautilus_admin_users
+
+[root@stapp01 ~]# id stark
+id: ‘stark’: no such user
+
+[root@stapp01 ~]# cat /etc/passwd | grep stark
+
+[root@stapp01 ~]# useradd -G nautilus_admin_users  stark
+
+[root@stapp01 ~]# id stark
+uid=1002(stark) gid=1003(stark) groups=1003(stark),1002(nautilus_admin_users)
+
+[root@stapp01 ~]# cat /etc/passwd |grep stark
+stark:x:1002:1003::/home/stark:/bin/bash
+
+[root@stapp01 ~]#
+
+
+[sudo] password for steve: 
+[root@stapp02 ~]# groupadd nautilus_admin_users
+[root@stapp02 ~]# id stark
+id: ‘stark’: no such user
+[root@stapp02 ~]# cat /etc/passwd | grep stark
+[root@stapp02 ~]# useradd -G nautilus_admin_users stark
+[root@stapp02 ~]# id stark
+uid=1002(stark) gid=1003(stark) groups=1003(stark),1002(nautilus_admin_users)
+[root@stapp02 ~]# 
+
+
+[root@stapp03 ~]# groupadd nautilus_admin_users
+[root@stapp03 ~]# id stark
+id: ‘stark’: no such user
+[root@stapp03 ~]# useradd -G nautilus_admin_users stark
+[root@stapp03 ~]# id stark
+uid=1002(stark) gid=1003(stark) groups=1003(stark),1002(nautilus_admin_users)
+[root@stapp03 ~]# 

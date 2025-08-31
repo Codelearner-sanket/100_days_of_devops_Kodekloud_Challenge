@@ -1,0 +1,69 @@
+*****************************Day 27: Git Revert Some Changes***********************************************
+
+The Nautilus application development team was working on a git repository /usr/src/kodekloudrepos/ecommerce present on Storage server in Stratos DC. However, they reported an issue with the recent commits being pushed to this repo. They have asked the DevOps team to revert repo HEAD to last commit. Below are more details about the task:
+
+
+In /usr/src/kodekloudrepos/ecommerce git repository, revert the latest commit ( HEAD ) to the previous commit (JFYI the previous commit hash should be with initial commit message ).
+
+
+Use revert ecommerce message (please use all small letters for commit message) for the new revert commit.
+
+Ans : 
+
+Task: Revert the latest commit in /usr/src/kodekloudrepos/ecommerce
+
+The Nautilus team reported that the latest commit caused issues. We need to revert HEAD to the previous commit and push the changes.
+
+Login to storage server 
+ssh natasha@ststsor01
+sudo su -
+
+Step 1: Go to the repository
+cd /usr/src/kodekloudrepos/ecommerce
+Navigate to the repository folder on the server.
+
+Step 2: Check the commit history
+git log --oneline
+
+Example output:
+d8a928f (HEAD -> master, origin/master) add data.txt file
+58209a2 initial commit
+
+d8a928f → latest commit (HEAD) to revert.
+58209a2 → previous commit (initial commit).
+
+Step 3: Revert the latest commit
+git revert HEAD
+
+This creates a new commit that undoes the changes from d8a928f.
+Important: Do NOT use -m unless it’s a merge commit.
+Git will open the default editor. Replace the commit message with:
+
+revert ecommerce
+
+Step 4: Push the revert commit to remote
+git push origin master
+
+
+Step 5: Verify the revert
+Check the latest commits:
+git log --oneline
+
+Output should show:
+c140534 (HEAD -> master, origin/master) revert ecommerce
+d8a928f add data.txt file
+58209a2 initial commit
+
+Explanation
+
+git revert does not delete history. It creates a new commit that undoes a previous commit.
+This is safer than git reset for shared repositories because it preserves the commit history.
+The -m option is only for reverting merge commits. For normal commits, simply use git revert <commit>.
+
+
+
+Outcome:
+
+The latest commit (add data.txt file) is undone.
+New commit revert ecommerce is added to maintain history.
+The repository is now stable on master both locally and on remote.

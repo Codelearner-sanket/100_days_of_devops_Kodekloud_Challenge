@@ -1,0 +1,114 @@
+*****************************Day 19: Install and Configure Web Application***************************
+
+xFusionCorp Industries is planning to host two static websites on their infra in Stratos Datacenter. The development of these websites is still in-progress, but we want to get the servers ready. Please perform the following steps to accomplish the task:
+
+a. Install httpd package and dependencies on app server 2.
+
+b. Apache should serve on port 8087.
+
+c. There are two website's backups /home/thor/media and /home/thor/cluster on jump_host. Set them up on Apache in a way that media should work on the link http://localhost:8087/media/ and cluster should work on link http://localhost:8087/cluster/ on the mentioned app server.
+
+d. Once configured you should be able to access the website using curl command on the respective app server, i.e curl http://localhost:8087/media/ and curl http://localhost:8087/cluster/
+
+Ans : 
+
+thor@jumphost ~$ ssh steve@stapp02
+
+[steve@stapp02 ~]$ sudo su -
+
+
+[root@stapp02 ~]# sudo yum install -y httpd  
+
+[root@stapp02 ~]# sudo vi /etc/httpd/conf/httpd.conf 
+
+[root@stapp02 ~]# logout
+[steve@stapp02 ~]$ logout
+Connection to stapp02 closed.
+
+
+thor@jumphost ~$ scp -r /home/thor/media tony@stapp02:/tmp/
+tony@stapp02's password: 
+
+thor@jumphost ~$ scp -r /home/thor/media steve@stapp02:/tmp/
+steve@stapp02's password: 
+index.html                                         100%  118   611.2KB/s   00:00  
+
+thor@jumphost ~$ scp -r /home/thor/cluster steve@stapp02:/tmp/
+steve@stapp02's password: 
+index.html                                         100%  120   219.1KB/s   00:00   
+
+thor@jumphost ~$ ssh steve@stapp02
+steve@stapp02's password: 
+
+
+[steve@stapp02 ~]$ sudo mv /tmp/media  /var/www/html/
+[sudo] password for steve: 
+
+[steve@stapp02 ~]$ sudo mv /tmp/cluster  /var/www/html/
+
+[steve@stapp02 ~]$ sudo vi /etc/httpd/conf/httpd.conf 
+
+[steve@stapp02 ~]$ sudo systemctl restart httpd
+[sudo] password for steve: 
+Job for httpd.service failed because the control process exited with error code.
+See "systemctl status httpd.service" and "journalctl -xeu httpd.service" for details.
+
+[steve@stapp02 ~]$ sudo ss -tulnp | grep 8087
+
+[steve@stapp02 ~]$ sudo vi /etc/httpd/conf/httpd.conf 
+
+[steve@stapp02 ~]$ sudo systemctl enable httpd
+Created symlink /etc/systemd/system/multi-user.target.wants/httpd.service → /usr/lib/systemd/system/httpd.service.
+
+[steve@stapp02 ~]$ sudo systemctl start httpd
+Failed to start The Apache HTTP Server.
+
+
+[steve@stapp02 ~]$ sudo vi /etc/httpd/conf/httpd.conf 
+
+[steve@stapp02 ~]$ sudo systemctl start httpd
+
+[steve@stapp02 ~]$ sudo systemctl status httpd
+listening on: port 8087, MAINPID=4387
+
+[steve@stapp02 ~]$ sudo apachectl configtest
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using stapp02.stratos.xfusioncorp.com. Set the 'ServerName' directive globally to suppress this message
+Syntax OK
+
+[steve@stapp02 ~]$ sudo systemctl restart httpd
+
+[steve@stapp02 ~]$ sudo systemctl status httpd
+
+[steve@stapp02 ~]$ curl http://localhost:8087/media
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>301 Moved Permanently</title>
+</head><body>
+<h1>Moved Permanently</h1>
+<p>The document has moved <a href="http://localhost:8087/media/">here</a>.</p>
+</body></html>
+
+
+[steve@stapp02 ~]$ curl http://localhost:8087/media/
+
+<!DOCTYPE html>
+<html>
+<body>
+<h1>KodeKloud</h1>
+<p>This is a sample page for our media website</p>
+</body>
+</html>
+
+
+[steve@stapp02 ~]$ curl http://localhost:8087/cluster/
+<!DOCTYPE html>
+<html>
+<body>
+<h1>KodeKloud</h1>
+<p>This is a sample page for our cluster website</p>
+</body>
+</html>
+
+
+[steve@stapp02 ~]$ 
+[steve@stapp02 ~]$ 
