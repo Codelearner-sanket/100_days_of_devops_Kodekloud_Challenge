@@ -9,7 +9,7 @@ The challenge is designed to improve hands-on skills in Linux, Git, Docker, Kube
 ## 📅 Challenge Structure
 
 - **Day 1 - Day 100:** Daily exercises, labs, and projects.
-- Each day has a separate folder or file named according to the day, e.g., `day01/`, `day02/`, etc.
+- Each day has a separate folder or file named according to the day, e.g., `1_`, `2_`, etc.
 
 ---
 
