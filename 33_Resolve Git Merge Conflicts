@@ -1,0 +1,96 @@
+*****************************Day 33: Resolve Git Merge Conflicts***********************************************
+
+Sarah and Max were working on writting some stories which they have pushed to the repository. Max has recently added some new changes and is trying to push them to the repository but he is facing some issues. Below you can find more details:
+
+SSH into storage server using user max and password Max_pass123. Under /home/max you will find the story-blog repository. Try to push the changes to the origin repo and fix the issues. The story-index.txt must have titles for all 4 stories. Additionally, there is a typo in The Lion and the Mooose line where Mooose should be Mouse.
+
+Click on the Gitea UI button on the top bar. You should be able to access the Gitea page. You can login to Gitea server from UI using username sarah and password Sarah_pass123 or username max and password Max_pass123.
+
+Note: For these kind of scenarios requiring changes to be done in a web UI, please take screenshots so that you can share it with us for review in case your task is marked incomplete. You may also consider using a screen recording software such as loom.com to record and share your work.
+
+Solution : 
+
+Handling Git Conflicts and Rebasing – Max’s Story-Blog Example
+
+When collaborating on a Git repository, it’s common to face conflicts when multiple people push changes. This post walks through how Max added a story to story-blog, resolved conflicts, and pushed his changes safely.
+
+
+Step 1: SSH into the storage server
+ssh max@<storage-server-ip>
+# Password: Max_pass123
+
+
+Navigate to the repository:
+cd story-blog
+
+
+
+Step 2: Check current Git status
+git status
+
+Step 3: Pull remote changes using rebase
+git pull --rebase origin master
+
+Rebasing replays your commits on top of remote changes.
+This avoids unnecessary merge commits and keeps history clean.
+
+Expected outcome:
+CONFLICT (add/add): Merge conflict in story-index.txt
+Git detected a conflict in story-index.txt because both remote and Max added lines.
+
+Step 4: Resolve the conflict
+Open the file:
+vi story-index.txt
+
+
+Git shows conflict markers like:
+<<<<<<< HEAD
+# remote content
+=======
+# local changes (Max's story)
+>>>>>>> Added the fox and grapes story
+
+Edit to remove markers and duplicates.
+Ensure all story titles are present and correct
+
+1. The Lion and the Mouse
+2. The Frogs and the Ox
+3. The Fox and the Grapes
+4. The Donkey and the Dog
+
+Save and exit :wq
+
+Step 5: Stage the resolved file
+git add story-index.txt
+
+
+Step 6: Continue the rebase
+git rebase --continue
+
+
+Step 7: Verify commit history
+git log --oneline --graph --all
+
+
+Step 8: Push changes to remote
+git push origin master
+if it asks login -- 
+username - max
+password - Max_pass123
+
+
+✅ Outcome
+
+story-index.txt contains all 4 story titles.
+Typo fixed in The Lion and the Mouse.
+Max’s story Added the fox and grapes story is now on remote master.
+Linear, clean Git history achieved.
+
+
+Key Takeaways
+
+Always resolve conflicts before pushing.
+Use git pull --rebase for linear history.
+Remove conflict markers carefully and ensure all intended content remains.
+Verify your commits with git log before pushing.
+Use --force-with-lease cautiously if needed.

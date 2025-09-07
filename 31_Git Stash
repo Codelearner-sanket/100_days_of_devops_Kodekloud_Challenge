@@ -1,0 +1,57 @@
+*****************************Day 31: Git Stash***********************************************
+
+The Nautilus application development team was working on a git repository /usr/src/kodekloudrepos/media present on Storage server in Stratos DC. One of the developers stashed some in-progress changes in this repository, but now they want to restore some of the stashed changes. Find below more details to accomplish this task:
+
+Look for the stashed changes under /usr/src/kodekloudrepos/media git repository, and restore the stash with stash@{1} identifier. Further, commit and push your changes to the origin.
+
+
+Solution : 
+
+🚀 Restoring Stashed Changes in Git and Pushing to Remote
+
+Login to storage server and root user 
+
+1️⃣ Navigate to the repository
+We first move into the target Git repository:
+
+cd /usr/src/kodekloudrepos/media/
+
+
+2️⃣ Check available stashes
+We list all the stashed changes to confirm which one needs to be restored:
+
+git stash list
+
+Output:
+
+stash@{0}: WIP on master: b8c847e initial commit
+stash@{1}: WIP on master: b8c847e initial commit
+
+✅ We can see stash@{1}, which we need to restore.
+
+
+3️⃣ Apply the required stash
+Restore the stash contents into the working directory:
+
+git stash apply stash@{1}
+
+This restored the file welcome.txt
+
+4️⃣ Stage the restored changes
+Now, we stage the new file:
+
+git add .
+
+5️⃣ Commit the changes
+Commit the stash changes with a meaningful message:
+
+git commit -m "Restored changes from stash@{1}"
+
+6️⃣ Push the changes to remote
+Finally, push the commit to the origin master branch:
+
+git push origin master
+
+
+🔥 Key Takeaway:
+Stashing in Git is useful to temporarily save unfinished work. Using git stash apply, we can bring those changes back, commit them, and safely push them to remote without losing progress.

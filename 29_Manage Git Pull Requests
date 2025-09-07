@@ -1,0 +1,147 @@
+*****************************Day 29: Manage Git Pull Requests***********************************************
+
+Max want to push some new changes to one of the repositories but we don't want people to push directly to master branch, since that would be the final version of the code. It should always only have content that has been reviewed and approved. We cannot just allow everyone to directly push to the master branch. So, let's do it the right way as discussed below:
+
+
+SSH into storage server using user max, password Max_pass123 . There you can find an already cloned repo under Max user's home.
+
+
+Max has written his story about The 🦊 Fox and Grapes 🍇
+
+
+Max has already pushed his story to remote git repository hosted on Gitea branch story/fox-and-grapes
+
+
+Check the contents of the cloned repository. Confirm that you can see Sarah's story and history of commits by running git log and validate author info, commit message etc.
+
+
+Max has pushed his story, but his story is still not in the master branch. Let's create a Pull Request(PR) to merge Max's story/fox-and-grapes branch into the master branch
+
+
+Click on the Gitea UI button on the top bar. You should be able to access the Gitea page.
+
+
+UI login info:
+
+- Username: max
+
+- Password: Max_pass123
+
+PR title : Added fox-and-grapes story
+
+PR pull from branch: story/fox-and-grapes (source)
+
+PR merge into branch: master (destination)
+
+
+Before we can add our story to the master branch, it has to be reviewed. So, let's ask tom to review our PR by assigning him as a reviewer
+
+
+Add tom as reviewer through the Git Portal UI
+
+Go to the newly created PR
+
+Click on Reviewers on the right
+
+Add tom as a reviewer to the PR
+
+Now let's review and approve the PR as user Tom
+
+
+Login to the portal with the user tom
+
+
+Logout of Git Portal UI if logged in as max
+
+
+UI login info:
+
+- Username: tom
+
+- Password: Tom_pass123
+
+PR title : Added fox-and-grapes story
+
+Review and merge it.
+
+Great stuff!! The story has been merged! 👏
+
+
+Note: For these kind of scenarios requiring changes to be done in a web UI, please take screenshots so that you can share it with us for review in case your task is marked incomplete. You may also consider using a screen recording software such as loom.com to record and share your work.
+
+
+
+Solution : 
+
+🚀 Git Workflow in Gitea: Adding The Fox and Grapes Story
+
+In collaborative software projects, we should never push directly to the master branch. The master branch must always contain clean, stable, and reviewed code. Instead, developers push their work to feature branches and then open a Pull Request (PR) for review before merging into master.
+
+Here’s how Max added his story “The 🦊 Fox and Grapes 🍇” safely into the master branch using Gitea.
+
+1. SSH into Storage Server as Max
+ssh max@<storage-server-ip>
+# password: Max_pass123
+
+2. Check the Repository and Commit
+cd ~/story-blog
+ls
+# fox-and-grapes.txt  frogs-and-ox.txt  lion-and-mouse.txt
+
+git log --oneline --author="max"
+# e7ef6d6 Added fox-and-grapes story
+
+✔ Confirms Max’s story exists on branch story/fox-and-grapes.
+
+3. Open Gitea UI as Max
+
+Click on Gitea UI from the portal.
+
+Login with:
+Username: max
+Password: Max_pass123
+
+Create a Pull Request
+Go to the repository.
+Navigate: Pull Requests → New Pull Request.
+Select:
+Source branch: story/fox-and-grapes
+Target branch: master
+PR Title: Added fox-and-grapes story
+Click Create Pull Request.
+
+
+5. Assign Reviewer
+Open the newly created PR.
+On the right side, click Reviewers.
+Add Tom as a reviewer.
+
+
+Review as Tom
+Logout from Max’s account.
+Login as Tom:
+Username: tom
+Password: Tom_pass123
+Open PR: Added fox-and-grapes story.
+Review the changes.
+Approve and Merge the PR into master.
+
+
+📌 Why This Workflow?
+
+No direct pushes to master → prevents breaking production code.
+Feature branches → isolate development safely.
+Pull Requests → enable review and collaboration.
+Reviewer assignment → enforces peer review before merging.
+
+
+---------------------Below are screenshots : ---------------------------
+
+![alt text](<Screenshot 2025-09-07 132928-1.png>)
+
+
+![alt text](<Screenshot 2025-09-07 133411.png>)
+
+
+![alt text](<Screenshot 2025-09-07 133542.png>)
+

@@ -1,0 +1,103 @@
+*****************************Day 34: Git Hook***********************************************
+
+The Nautilus application development team was working on a git repository /opt/beta.git which is cloned under /usr/src/kodekloudrepos directory present on Storage server in Stratos DC. The team want to setup a hook on this repository, please find below more details:
+
+Merge the feature branch into the master branch`, but before pushing your changes complete below point.
+
+Create a post-update hook in this git repository so that whenever any changes are pushed to the master branch, it creates a release tag with name release-2023-06-15, where 2023-06-15 is supposed to be the current date. For example if today is 20th June, 2023 then the release tag must be release-2023-06-20. Make sure you test the hook at least once and create a release tag for today's release.
+
+Finally remember to push your changes.
+
+Solution: 
+
+clone = /usr/src/kodekloudrepos/news
+bare repo = /opt/news.git.
+
+
+SSH to storage server and root user (sudo su - )
+
+
+
+# (work in the clone) — switch to master and merge feature first
+
+cd /usr/src/kodekloudrepos/news
+Change into the working clone of the repo.
+
+git checkout master
+Make sure you are on master.
+
+git merge feature
+Fast-forward or merge feature into master (resolve conflicts if any).
+
+# create the hook on the server (must be in the bare repo hooks dir)
+
+sudo vi /opt/news.git/hooks/post-update
+Open the post-update hook file for editing on the server (use your editor).
+
+Paste the following script exactly into post-update:
+
+#!/bin/bash
+# /opt/news.git/hooks/post-update
+# Create a release tag release-YYYY-MM-DD whenever master is updated.
+
+for refname in "$@"
+do
+    if [[ "$refname" == "refs/heads/master" ]]; then
+        DATE=$(date +%F)                 # YYYY-MM-DD
+        TAG_NAME="release-$DATE"
+        # If the tag doesn't already exist, create an annotated tag
+        if ! git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            git tag -a "$TAG_NAME" -m "Release for $DATE"
+            echo "Created release tag: $TAG_NAME"
+        else
+            echo "Tag $TAG_NAME already exists"
+        fi
+    fi
+done
+
+
+
+:wq
+Save and exit the editor.
+
+sudo chmod +x /opt/news.git/hooks/post-update
+Make the hook executable — hooks won't run if not executable.
+
+# test the hook by making a real commit in the clone and pushing
+
+cd /usr/src/kodekloudrepos/news
+
+echo "trigger hook $(date)" >> feature.txt
+Make a small change to have something to commit.
+
+git add feature.txt
+
+git commit -m "Test hook trigger: create release tag on master"
+
+git push origin master
+Push the commit — this triggers the post-update hook on the server.
+
+# verify the tag was created on the bare repo
+
+cd /opt/news.git
+
+git tag
+You should see release-YYYY-MM-DD for today.
+
+# (optional) verify from a clone that tag is visible to others
+
+cd /usr/src/kodekloudrepos/news
+
+git fetch --tags
+
+git tag
+Now the clone will show the new tag locally too.
+
+
+
+Troubleshooting notes (short)
+Hook must live in the bare repo /opt/news.git/hooks/post-update.
+Hook must be executable (chmod +x).
+Use the for refname in "$@" approach for post-update (it receives ref names as args).
+If git tag shows nothing, confirm that you actually pushed a new commit (pushing with no new commits does not trigger the hook).
+If multiple refs are updated in a single push, the hook will loop over them — it only tags when refs/heads/master is included.
